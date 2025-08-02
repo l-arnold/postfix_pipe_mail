@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_email_server_form_postfix_pipe" model="ir.ui.view">
+        <field name="name">fetchmail.server.form.postfix.pipe</field>
+        <field name="model">fetchmail.server</field>
+        <field name="inherit_id" ref="fetchmail.view_email_server_form"/>
+        <field name="arch" type="xml">
+            
+            <!-- Add fields after server_type -->
+            <field name="server_type" position="after">
+                <field name="script_path" 
+                       attrs="{'invisible': [('server_type', '!=', 'postfix_pipe')], 
+                               'required': [('server_type', '=', 'postfix_pipe')]}"
+                       placeholder="/opt/odoo/scripts/read_mbox.py"/>
+                <field name="mbox_path" 
+                       attrs="{'invisible': [('server_type', '!=', 'postfix_pipe')]}"
+                       placeholder="/opt/odoo/mail/incoming_mail.mbox"/>
+            </field>
+            
+            <!-- Hide standard server fields for postfix_pipe -->
+            <field name="server" position="attributes">
+                <attribute name="attrs">{'invisible': [('server_type', 'in', ['postfix_pipe'])], 'required': [('server_type', 'in', ['pop', 'imap'])]}</attribute>
+            </field>
+            
+            <field name="port" position="attributes">
+                <attribute name="attrs">{'invisible': [('server_type', 'in', ['postfix_pipe'])]}</attribute>
+            </field>
+            
+            <field name="user" position="attributes">
+                <attribute name="attrs">{'invisible': [('server_type', 'in', ['postfix_pipe'])], 'required': [('server_type', 'in', ['pop', 'imap'])]}</attribute>
+            </field>
+            
+            <field name="password" position="attributes">
+                <attribute name="attrs">{'invisible': [('server_type', 'in', ['postfix_pipe'])], 'required': [('server_type', 'in', ['pop', 'imap'])]}</attribute>
+            </field>
+            
+            <!-- Add help text for Postfix Pipe -->
+            <div class="alert alert-info" attrs="{'invisible': [('server_type', '!=', 'postfix_pipe')]}">
+                <h4>Postfix Pipe Configuration</h4>
+                <p>This server type works with your existing Postfix pipe setup:</p>
+                <ul>
+                    <li><strong>Script Path:</strong> Python script that reads and processes your mbox file</li>
+                    <li><strong>Mbox Path:</strong> Location of the mbox file created by your Postfix pipe</li>
+                    <li><strong>Processing:</strong> Odoo will run the script periodically to fetch new emails</li>
+                </ul>
+                <p><strong>Your current Postfix configuration remains unchanged.</strong></p>
+            </div>
+            
+        </field>
+    </record>
+</odoo>
