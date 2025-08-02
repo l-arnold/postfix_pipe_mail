@@ -1,6 +1,6 @@
 {
     'name': 'Postfix Pipe Mail Integration',
-    'version': '14.0.1.0.1',
+    'version': '14.0.1.0.2',
     'category': 'Discuss',
     'summary': 'Custom mail integration for Postfix pipe setup',
     'description': '''

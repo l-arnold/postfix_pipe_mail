@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 import subprocess
 import logging
 import os
@@ -24,6 +25,51 @@ class FetchmailServer(models.Model):
         help='Path to the mbox file created by Postfix pipe',
         default='/opt/odoo/mail/incoming_mail.mbox'
     )
+    
+    def button_confirm_login(self):
+        """Override connection test for Postfix Pipe"""
+        if self.server_type == 'postfix_pipe':
+            return self._test_postfix_pipe_connection()
+        else:
+            return super(FetchmailServer, self).button_confirm_login()
+    
+    def _test_postfix_pipe_connection(self):
+        """Test Postfix Pipe configuration"""
+        try:
+            if self.script_path:
+                if not os.path.exists(self.script_path):
+                    raise UserError(f"Script file not found: {self.script_path}")
+                if not os.access(self.script_path, os.R_OK):
+                    raise UserError(f"Script file not readable: {self.script_path}")
+            
+            if self.mbox_path:
+                mbox_dir = os.path.dirname(self.mbox_path)
+                if not os.path.exists(mbox_dir):
+                    raise UserError(f"Mbox directory not found: {mbox_dir}")
+                if not os.access(mbox_dir, os.W_OK):
+                    raise UserError(f"Mbox directory not writable: {mbox_dir}")
+            
+            # Test passed
+            title = "Connection Test Succeeded!"
+            message = "Postfix Pipe configuration is valid.\n\n"
+            if self.script_path:
+                message += f"✓ Script path accessible: {self.script_path}\n"
+            if self.mbox_path:
+                message += f"✓ Mbox directory writable: {os.path.dirname(self.mbox_path)}\n"
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': title,
+                    'message': message,
+                    'type': 'success',
+                    'sticky': False,
+                }
+            }
+            
+        except Exception as e:
+            raise UserError(f"Connection test failed: {str(e)}")
     
     def fetch_mail(self):
         """Override to handle Postfix pipe processing"""
