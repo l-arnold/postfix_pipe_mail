@@ -76,9 +76,13 @@ class FetchmailServer(models.Model):
     
     def fetch_mail(self):
         """Override to handle Postfix pipe processing"""
+        _logger.info(f"fetch_mail called for server: {self.name}, type: {self.server_type}")
+        
         if self.server_type == 'postfix_pipe':
+            _logger.info(f"Processing Postfix Pipe server: {self.name}")
             return self._fetch_postfix_pipe_mails()
         else:
+            _logger.info(f"Calling super for server type: {self.server_type}")
             return super(FetchmailServer, self).fetch_mail()
     
     def _fetch_postfix_pipe_mails(self):
