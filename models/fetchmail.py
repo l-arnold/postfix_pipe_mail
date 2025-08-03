@@ -49,13 +49,16 @@ class FetchmailServer(models.Model):
                 if not os.access(mbox_dir, os.W_OK):
                     raise UserError(f"Mbox directory not writable: {mbox_dir}")
             
-            # Test passed
+            # Test passed - set server to confirmed state
+            self.write({'state': 'done'})
+            
             title = "Connection Test Succeeded!"
-            message = "Postfix Pipe configuration is valid.\n\n"
+            message = "Postfix Pipe configuration is valid and server is now confirmed.\n\n"
             if self.script_path:
                 message += f"✓ Script path accessible: {self.script_path}\n"
             if self.mbox_path:
                 message += f"✓ Mbox directory writable: {os.path.dirname(self.mbox_path)}\n"
+            message += f"✓ Server state set to confirmed\n"
             
             return {
                 'type': 'ir.actions.client',
