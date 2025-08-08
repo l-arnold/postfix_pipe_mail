@@ -85,6 +85,13 @@ class FetchmailServer(models.Model):
             _logger.info(f"Calling super for server type: {self.server_type}")
             return super(FetchmailServer, self).fetch_mail()
     
+    def fetch_mails(self):
+        """Override to ensure our custom fetch_mail is used"""
+        servers = self.search([('active', '=', True)])
+        for server in servers:
+            server.fetch_mail()
+
+    
     def _fetch_postfix_pipe_mails(self):
         """Process mails from Postfix pipe mbox file"""
         try:
